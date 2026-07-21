@@ -155,9 +155,9 @@ int main(int argc, char **argv) {
     platform = "darwin (MacOS)";
 #else
     platform = "windows";
+    long total = 0;
 #endif
 
-    long total = 0;
 
     for (;;) {
     #ifdef _WIN32
@@ -180,12 +180,11 @@ int main(int argc, char **argv) {
         };
 
         SendInput(ARRAYSIZE(input), input, sizeof(*input));
+        total++;
     #else
         printf("Doing something for %.2lf seconds while delaying %.2f seconds on %s\n",
             duration_sec, delay_sec, platform);
     #endif
-
-        total++;
 
         sleepS(remaining < delay_sec ? remaining : delay_sec);
     }
