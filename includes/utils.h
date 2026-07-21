@@ -7,6 +7,7 @@
     #include <unistd.h>
 #endif
 
+#define CPS_FLAG "cps"
 #define DELAY_FLAG "delay"
 #define DURATION_FLAG "duration"
 

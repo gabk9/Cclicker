@@ -18,6 +18,7 @@ int main(int argc, char **argv) {
 
     double delay_sec = NAN;
     double duration_sec = NAN;
+    double target_cps = NAN;
 
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] != '-' || argv[i][1] != '-') {
@@ -63,6 +64,25 @@ int main(int argc, char **argv) {
             }
 
             delay_sec = val;
+        } else if (is_arg(argv[i] + 2, CPS_FLAG)) {
+            double val = get_arg_value(argv[i]);
+
+            if (isnan(val) || val == (double)INVALID_ARG_VALUE) {
+                fprintf(stderr, "%s: invalid value for %s flag\n",
+                    PROJ_NAME, CPS_FLAG);
+
+                return INVALID_ARG;
+            }
+
+            if (val <= 0.0) {
+                fprintf(stderr, "%s: invalid cps amount\n",
+                    PROJ_NAME);
+
+                return INVALID_ARG;
+            }
+
+            target_cps = val;
+
         } else {
             argv[i][strcspn(argv[i], "=")] = '\0';
 
@@ -80,12 +100,24 @@ int main(int argc, char **argv) {
         return INVALID_ARG;
     }
 
-    if (isnan(delay_sec)) {
-        fprintf(stderr, "%s: %s flag out of use\n",
-            PROJ_NAME, DELAY_FLAG);
+    if (!isnan(delay_sec) && !isnan(target_cps)) {
+        fprintf(stderr,
+            "%s: %s and %s flags cannot be used at the same time\n",
+            PROJ_NAME, DELAY_FLAG, CPS_FLAG);
 
         return INVALID_ARG;
     }
+
+    if (isnan(delay_sec) && isnan(target_cps)) {
+        fprintf(stderr,
+            "%s: either %s or %s must be specified\n",
+            PROJ_NAME, DELAY_FLAG, CPS_FLAG);
+
+        return INVALID_ARG;
+    }
+
+    if (isnan(delay_sec))
+        delay_sec = 1.0 / target_cps;
 
     if (delay_sec > duration_sec) {
         fprintf(stderr, "%s: the delay must be less than the duration\n",
@@ -159,23 +191,45 @@ int main(int argc, char **argv) {
     }
 
 #ifdef _WIN32
-    double cps = (double)total / elapsed;
+    double actual_cps = (double)total / elapsed;
 
     long theor_total = (long)(duration_sec / delay_sec);
     double theor_cps = (double)theor_total / duration_sec;
 
     long lost_clicks = theor_total - total;
-    double lost_cps = theor_cps - cps;
-    double efficiency = (double)total / theor_total * 100.0;
+    double lost_cps = theor_cps - actual_cps;
 
-    printf("\n=== %s (%s) ===\n", PROJ_NAME, platform);
-    printf(" Runtime      : %.3f s\n", elapsed);
-    printf(" Duration     : %.3f s\n", duration_sec);
-    printf(" Delay        : %.3f s\n", delay_sec);
+    double efficiency = (double)total / theor_total * 100.0;
+    double cps_accuracy = isnan(target_cps)
+        ? (actual_cps / theor_cps) * 100.0
+        : (actual_cps / target_cps) * 100.0;
+
     printf("\n");
-    printf(" Clicks       : %ld (%.2f CPS)\n", total, cps);
-    printf(" Theoretical  : %ld (%.2f CPS)\n", theor_total, theor_cps);
-    printf(" Lost         : %ld (%.2f CPS)\n", lost_clicks, lost_cps);
+    printf("=========================================\n");
+    printf(" %s (%s)\n", PROJ_NAME, platform);
+    printf("=========================================\n");
+
+    printf("\nConfiguration\n");
+    printf("-------------\n");
+    printf(" Duration     : %.3f s\n", duration_sec);
+    printf(" Delay        : %.6f s\n", delay_sec);
+
+    if (!isnan(target_cps))
+        printf(" Target CPS   : %.2f\n", target_cps);
+    else
+        printf(" Target CPS   : %.2f (from delay)\n", theor_cps);
+
+    printf("\nResults\n");
+    printf("-------\n");
+    printf(" Runtime      : %.3f s\n", elapsed);
+    printf(" Clicks       : %ld\n", total);
+    printf(" Actual CPS   : %.2f\n", actual_cps);
+
+    printf("\nAnalysis\n");
+    printf("--------\n");
+    printf(" Maximum      : %ld clicks (%.2f CPS)\n", theor_total, theor_cps);
+    printf(" Difference   : %ld clicks (%.2f CPS)\n", lost_clicks, lost_cps);
+    printf(" Accuracy     : %.2f%%\n", cps_accuracy);
     printf(" Efficiency   : %.2f%%\n", efficiency);
 #endif
 
