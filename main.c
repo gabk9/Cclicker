@@ -105,8 +105,8 @@ int main(int argc, char **argv) {
 
     double elapsed = 0.0;
 
-#ifdef __linux__
     const char *platform;
+#ifdef __linux__
     switch (get_display_server()) {
         case DISPLAY_X11:
             platform = "linux/x11";
@@ -121,7 +121,11 @@ int main(int argc, char **argv) {
 #elif defined(__APPLE__)
     const char *platform;
     platform = "darwin (MacOS)";
+#else
+    platform = "windows";
 #endif
+
+    long total = 0;
 
     for (;;) {
     #ifdef _WIN32
@@ -149,11 +153,30 @@ int main(int argc, char **argv) {
             duration_sec, delay_sec, platform);
     #endif
 
+        total++;
+
         sleepS(remaining < delay_sec ? remaining : delay_sec);
     }
 
 #ifdef _WIN32
-    printf("%s: clicked with the left mouse button %ld times\n", PROJ_NAME, (long int)trunc(duration_sec / delay_sec));
+    double cps = (double)total / elapsed;
+
+    long theor_total = (long)(duration_sec / delay_sec);
+    double theor_cps = (double)theor_total / duration_sec;
+
+    long lost_clicks = theor_total - total;
+    double lost_cps = theor_cps - cps;
+    double efficiency = (double)total / theor_total * 100.0;
+
+    printf("\n=== %s (%s) ===\n", PROJ_NAME, platform);
+    printf(" Runtime      : %.3f s\n", elapsed);
+    printf(" Duration     : %.3f s\n", duration_sec);
+    printf(" Delay        : %.3f s\n", delay_sec);
+    printf("\n");
+    printf(" Clicks       : %ld (%.2f CPS)\n", total, cps);
+    printf(" Theoretical  : %ld (%.2f CPS)\n", theor_total, theor_cps);
+    printf(" Lost         : %ld (%.2f CPS)\n", lost_clicks, lost_cps);
+    printf(" Efficiency   : %.2f%%\n", efficiency);
 #endif
 
     return 0;
