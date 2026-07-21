@@ -76,12 +76,14 @@ int main(int argc, char **argv) {
     if (isnan(duration_sec)) {
         fprintf(stderr, "%s: %s flag out of use\n",
             PROJ_NAME, DURATION_FLAG);
+
         return INVALID_ARG;
     }
 
     if (isnan(delay_sec)) {
         fprintf(stderr, "%s: %s flag out of use\n",
             PROJ_NAME, DELAY_FLAG);
+
         return INVALID_ARG;
     }
 

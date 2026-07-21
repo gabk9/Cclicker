@@ -3,7 +3,10 @@ project(shell C)
 
 set(SOURCES
     main.c 
+    includes/utils.c
 )
+
+include_directories(includes)
 
 add_executable(Cclicker ${SOURCES})
 
