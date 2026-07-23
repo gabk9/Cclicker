@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
             break;
 
     #ifdef _WIN32
-        INPUT input[2] = {
+        INPUT input[] = {
             {.type = INPUT_MOUSE, .mi.dwFlags = MOUSEEVENTF_LEFTDOWN},
             {.type = INPUT_MOUSE, .mi.dwFlags = MOUSEEVENTF_LEFTUP}
         };
