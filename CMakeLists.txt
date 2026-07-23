@@ -2,10 +2,13 @@ cmake_minimum_required(VERSION 3.10)
 project(shell C)
 
 set(SOURCES
-    main.c 
+    main.c
     includes/utils.c
-    includes/posix_input.c
 )
+
+if(NOT WIN32)
+    list(APPEND SOURCES includes/posix_input.c)
+endif()
 
 include_directories(includes)
 
