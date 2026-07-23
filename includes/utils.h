@@ -41,6 +41,8 @@ display get_display_server(void);
 void sleepS(double sec);
 double get_arg_value(const char *arg);
 int is_arg(const char *src, const char *arg);
+int manage_argv(char **argv, int argc, double *delay_sec, double *duration_sec, double *target_cps);
+void print_report(long total, double elapsed, double duration_sec, double delay_sec, double target_cps);
 
 
 #endif
