@@ -62,7 +62,7 @@ winget install --id MSYS2.MSYS2 -e
 ### Linux
 
 ```bash
-git git@github.com:gabk9/Cclicker.git
+git clone git@github.com:gabk9/Cclicker.git
 cd Cclicker
 
 mkdir build
