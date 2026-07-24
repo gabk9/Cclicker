@@ -62,7 +62,7 @@ winget install --id MSYS2.MSYS2 -e
 ### Linux
 
 ```bash
-git clone git@github.com:gabk9/Cclicker.git
+git clone https://github.com/gabk9/Cclicker.git
 cd Cclicker
 
 mkdir build
@@ -79,7 +79,7 @@ cmake --build .
 ### Windows (PowerShell - MSVC)
 
 ```bash
-git clone git@github.com:gabk9/Cclicker.git
+git clone https://github.com/gabk9/Cclicker.git
 cd Cclicker
 
 mkdir build
