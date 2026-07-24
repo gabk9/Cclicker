@@ -116,7 +116,17 @@ int main(int argc, char **argv) {
     destroy_virtual_mouse(fd);
 #endif
 
-    print_report(total, elapsed, duration_sec, delay_sec, target_cps);
+    const double info[] = {
+        elapsed,
+        duration_sec,
+        delay_sec,
+        target_cps
+    };
+
+    char platform[16];
+    get_platform(platform, sizeof(platform));
+
+    print_report(platform, total, info);
 
     return 0;
 }

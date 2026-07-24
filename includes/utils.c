@@ -3,6 +3,10 @@
     #include <time.h>
 #endif
 
+#ifndef _CRT_SECURE_NO_WARNINGS
+    #define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <math.h>
 #include "utils.h"
 #include <errno.h>
@@ -10,38 +14,66 @@
 #include <string.h>
 #include <stdio.h>
 
-void print_report(long total, double elapsed, double duration_sec, double delay_sec, double target_cps) {
+int is_running_in_wsl(void) {
+    if (getenv("WSL_DISTRO_NAME") || getenv("WSL_INTEROP") ||
+        getenv("WSLENV")) {
+        return 1;
+    }
 
-    const char *platform;
+    FILE *f = fopen("/proc/sys/kernel/osrelease", "r");
+    if (f) {
+        char buffer[256];
+        if (fgets(buffer, sizeof(buffer), f)) {
+            if (strstr(buffer, "microsoft") ||strstr(buffer, "Microsoft") ||
+                strstr(buffer, "wsl")) {
+                fclose(f);
+                return 1;
+            }
+        }
+        fclose(f);
+    }
+    return 0;
+}
+
+void get_platform(char *buff, size_t size) {
 #ifdef __linux__
+
+    if (is_running_in_wsl()) {
+        snprintf(buff, size, "linux/wsl");
+        return;
+    }
+
     switch (get_display_server()) {
         case DISPLAY_X11:
-            platform = "linux/x11";
+            snprintf(buff, size, "linux/x11");
             break;
         case DISPLAY_WAYLAND: 
-            platform = "linux/wayland";
+            snprintf(buff, size, "linux/wayland");
             break;
         default:
-            platform = "linux";
+            snprintf(buff, size, "linux");
     }
 #elif defined(__APPLE__)
-    platform = "darwin (MacOS)";
+    snprintf(buff, size, "darwin (macOS)");
 #else
-    platform = "windows";
+    snprintf(buff, size, "windows");
 #endif
+}
 
-    double actual_cps = (double)total / elapsed;
+void print_report(const char *platform, long total, const double *info) {
 
-    long theor_total = (long)(duration_sec / delay_sec);
-    double theor_cps = (double)theor_total / duration_sec;
+    double actual_cps = (double)total / info[0];
+
+    long theor_total = (long)(info[1] / info[2]);
+    double theor_cps = (double)theor_total / info[1];
 
     long lost_clicks = theor_total - total;
     double lost_cps = theor_cps - actual_cps;
 
     double efficiency = (double)total / theor_total * 100.0;
-    double cps_accuracy = isnan(target_cps)
+    double cps_accuracy = isnan(info[3])
         ? (actual_cps / theor_cps) * 100.0
-        : (actual_cps / target_cps) * 100.0;
+        : (actual_cps / info[3]) * 100.0;
 
     printf("\n");
     printf("=========================================\n");
@@ -50,17 +82,17 @@ void print_report(long total, double elapsed, double duration_sec, double delay_
 
     printf("\nConfiguration\n");
     printf("-------------\n");
-    printf(" Duration     : %.3f s\n", duration_sec);
-    printf(" Delay        : %.6f s\n", delay_sec);
+    printf(" Duration     : %.3f s\n", info[1]);
+    printf(" Delay        : %.6f s\n", info[2]);
 
-    if (!isnan(target_cps))
-        printf(" Target CPS   : %.2f\n", target_cps);
+    if (!isnan(info[3]))
+        printf(" Target CPS   : %.2f\n", info[3]);
     else
         printf(" Target CPS   : %.2f (from delay)\n", theor_cps);
 
     printf("\nResults\n");
     printf("-------\n");
-    printf(" Runtime      : %.3f s\n", elapsed);
+    printf(" Runtime      : %.3f s\n", info[0]);
     printf(" Clicks       : %ld\n", total);
     printf(" Actual CPS   : %.2f\n", actual_cps);
 

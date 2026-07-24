@@ -39,10 +39,12 @@ display get_display_server(void);
 
 
 void sleepS(double sec);
+int is_running_in_wsl(void);
 double get_arg_value(const char *arg);
+void get_platform(char *buff, size_t size);
 int is_arg(const char *src, const char *arg);
+void print_report(const char *platform, long total, const double *info);
 int manage_argv(char **argv, int argc, double *delay_sec, double *duration_sec, double *target_cps);
-void print_report(long total, double elapsed, double duration_sec, double delay_sec, double target_cps);
 
 
 #endif
