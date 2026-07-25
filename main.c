@@ -2,12 +2,15 @@
 
 #include <math.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include "includes/utils.h"
 #include "includes/posix_input.h"
 
 #ifndef _WIN32
     #include <time.h>
+#else
+    #include <io.h>
+    #define isatty _isatty
+    #define STDIN_FILENO 0
 #endif
 
 #ifdef __APPLE__
@@ -16,7 +19,12 @@
 
 int main(int argc, char **argv) {
 
-    if (argc == 1) {
+    if (!isatty(STDIN_FILENO)) {
+        puts(PROJ_NAME": interactive terminal input is not supported");
+        return INVALID_ARG;
+    }
+
+    if (argc <= 1) {
         fprintf(stderr, "%s: missing parameters\n", PROJ_NAME);
         return INVALID_ARG;
     }
@@ -28,7 +36,7 @@ int main(int argc, char **argv) {
     int argv_error = manage_argv(argv, argc, &delay_sec, &duration_sec, &target_cps);
 
     if (argv_error)
-        exit(argv_error);
+        return argv_error;
 
     if (isnan(duration_sec)) {
         fprintf(stderr, "%s: %s flag out of use\n",

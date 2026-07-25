@@ -4,3 +4,4 @@ main
 Cclicker*
 .vscode
 .cache
+*.pdb
