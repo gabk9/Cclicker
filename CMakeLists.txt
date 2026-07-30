@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(shell C)
 
+if (NOT (WIN32 OR LINUX OR APPLE))
+    message(FATAL_ERROR "platform not supported or not recognized")
+endif()
+
 set(SOURCES
     main.c
     includes/utils.c

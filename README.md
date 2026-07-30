@@ -19,7 +19,7 @@
 | -------- | :------------- |
 | Windows  | ✅ Supported   |
 | Linux    | ✅ Supported   |
-| macOS    | ❌ Unsupported |
+| macOS    | ✅ Supported   |
 
 ---
 
@@ -56,10 +56,17 @@ winget install --id MSYS2.MSYS2 -e
 
 ---
 
+### macOS (using brew installer)
+```bash
+brew install cmake git
+```
+
+---
+
 ## Build & Run
 
 
-### Linux
+### Linux and macOS
 
 ```bash
 git clone https://github.com/gabk9/Cclicker.git
@@ -133,8 +140,11 @@ Cclicker
 ├── Windows Backend
 │   └── SendInput API
 │
-└── Linux Backend
-    └── uinput subsystem
+├── Linux Backend
+│   └── uinput subsystem
+│
+└── macOS Backend
+    └── Quartz Event Services (Core Graphics)
 ```
 
 This design allows a graphical interface to be built on top of Cclicker without needing to handle operating-system-specific input APIs.
@@ -175,7 +185,7 @@ The engine is capable of generating hundreds or thousands of clicks per second d
 ## Future Plans
 
 - [ ] Multiple mouse buttons
-- [ ] macOS support
+- [x] macOS support
 
 ---
 ## License

@@ -40,4 +40,12 @@ void destroy_virtual_mouse(int fd) {
     close(fd);
 }
 
+#elif __APPLE__
+
+void emit_mouse(CGEventType type, CGPoint mouse_pos, CGMouseButton button) {
+    CGEventRef event = CGEventCreateMouseEvent(NULL, type, mouse_pos, button);
+    CGEventPost(kCGHIDEventTap, event);
+    CFRelease(event);
+}
+
 #endif

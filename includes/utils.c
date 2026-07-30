@@ -55,7 +55,7 @@ void get_platform(char *buff, size_t size) {
     }
 #elif defined(__APPLE__)
     snprintf(buff, size, "darwin (macOS)");
-#else
+#elif defined(_WIN32)
     snprintf(buff, size, "windows");
 #endif
 }

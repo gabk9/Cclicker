@@ -3,7 +3,7 @@
 
 #ifdef _WIN32
     #include <windows.h>
-#else
+#elif defined(__linux__) || defined(__APPLE__)
     #include <unistd.h>
 #endif
 
