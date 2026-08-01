@@ -109,12 +109,12 @@ cmake --build .
 
 ### Options
 
-| Option         | Description                                 |
-| -------------- | ------------------------------------------- |
-| `--duration=x` | Total execution time in seconds             |
-| `--button=x`   | Which mouse button you want to use (1 to 3) |
-| `--delay=x`    | Delay between clicks in seconds             |
-| `--cps=x`      | Target clicks per second                    |
+| Option         | Description                        |
+| -------------- | ---------------------------------- |
+| `--duration=x` | Total execution time in seconds    |
+| `--button=x`   | Which mouse button you want to use |
+| `--delay=x`    | Delay between clicks in seconds    |
+| `--cps=x`      | Target clicks per second           |
 
 > **Button values:**
 > - `1` = Left button
