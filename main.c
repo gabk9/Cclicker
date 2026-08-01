@@ -34,23 +34,26 @@ int main(int argc, char **argv) {
         return INVALID_ARG;
     }
 
-    double delay_sec = NAN;
-    double duration_sec = NAN;
-    double target_cps = NAN;
+    m_info info = {
+        .delay_s = NAN,
+        .duration_s = NAN,
+        .cps = NAN,
+        .button = LEFT_BTN,
+    };
 
-    int argv_error = manage_argv(argv, argc, &delay_sec, &duration_sec, &target_cps);
+    int argv_error = manage_argv(argv, argc, &info);
 
     if (argv_error)
         return argv_error;
 
-    if (isnan(duration_sec)) {
+    if (isnan(info.duration_s)) {
         fprintf(stderr, "%s: %s flag out of use\n",
             PROJ_NAME, DURATION_FLAG);
 
         return INVALID_ARG;
     }
 
-    if (!isnan(delay_sec) && !isnan(target_cps)) {
+    if (!isnan(info.delay_s) && !isnan(info.cps)) {
         fprintf(stderr,
             "%s: %s and %s flags cannot be used at the same time\n",
             PROJ_NAME, DELAY_FLAG, CPS_FLAG);
@@ -58,7 +61,7 @@ int main(int argc, char **argv) {
         return INVALID_ARG;
     }
 
-    if (isnan(delay_sec) && isnan(target_cps)) {
+    if (isnan(info.delay_s) && isnan(info.cps)) {
         fprintf(stderr,
             "%s: either %s or %s must be specified\n",
             PROJ_NAME, DELAY_FLAG, CPS_FLAG);
@@ -66,10 +69,10 @@ int main(int argc, char **argv) {
         return INVALID_ARG;
     }
 
-    if (isnan(delay_sec))
-        delay_sec = 1.0 / target_cps;
+    if (isnan(info.delay_s))
+        info.delay_s = 1.0 / info.cps;
 
-    if (delay_sec > duration_sec) {
+    if (info.delay_s > info.duration_s) {
         fprintf(stderr, "%s: the delay must be less than the duration\n",
             PROJ_NAME);
 
@@ -105,7 +108,7 @@ int main(int argc, char **argv) {
         elapsed = (now.tv_sec - start.tv_sec) + (now.tv_nsec - start.tv_nsec) / 1e9;
     #endif
 
-        double remaining = duration_sec - elapsed;
+        double remaining = info.duration_s - elapsed;
 
         if (remaining <= 0.0)
             break;
@@ -130,24 +133,14 @@ int main(int argc, char **argv) {
 
         total++;
 
-        sleepS(remaining < delay_sec ? remaining : delay_sec);
+        sleepS(remaining < info.delay_s ? remaining : info.delay_s);
     }
 
 #ifdef __linux__
     destroy_virtual_mouse(fd);
 #endif
 
-    const double info[] = {
-        elapsed,
-        duration_sec,
-        delay_sec,
-        target_cps
-    };
-
-    char platform[16];
-    get_platform(platform, sizeof(platform));
-
-    print_report(platform, total, info);
+    print_report(total, elapsed, info);
 
     return 0;
 }

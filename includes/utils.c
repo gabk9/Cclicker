@@ -60,20 +60,23 @@ void get_platform(char *buff, size_t size) {
 #endif
 }
 
-void print_report(const char *platform, long total, const double *info) {
+void print_report(long total, double elapsed, m_info info) {
 
-    double actual_cps = (double)total / info[0];
+    char platform[16];
+    get_platform(platform, sizeof(platform));
 
-    long theor_total = (long)(info[1] / info[2]);
-    double theor_cps = (double)theor_total / info[1];
+    double actual_cps = (double)total / elapsed;
+
+    long theor_total = (long)(info.duration_s / info.delay_s);
+    double theor_cps = (double)theor_total / info.duration_s;
 
     long lost_clicks = theor_total - total;
     double lost_cps = theor_cps - actual_cps;
 
     double efficiency = (double)total / theor_total * 100.0;
-    double cps_accuracy = isnan(info[3])
+    double cps_accuracy = isnan(info.cps)
         ? (actual_cps / theor_cps) * 100.0
-        : (actual_cps / info[3]) * 100.0;
+        : (actual_cps / info.cps) * 100.0;
 
     printf("\n");
     printf("=========================================\n");
@@ -82,17 +85,17 @@ void print_report(const char *platform, long total, const double *info) {
 
     printf("\nConfiguration\n");
     printf("-------------\n");
-    printf(" Duration     : %.3f s\n", info[1]);
-    printf(" Delay        : %.6f s\n", info[2]);
+    printf(" Duration     : %.3f s\n", info.duration_s);
+    printf(" Delay        : %.6f s\n", info.delay_s);
 
-    if (!isnan(info[3]))
-        printf(" Target CPS   : %.2f\n", info[3]);
+    if (!isnan(info.cps))
+        printf(" Target CPS   : %.2f\n", info.cps);
     else
         printf(" Target CPS   : %.2f (from delay)\n", theor_cps);
 
     printf("\nResults\n");
     printf("-------\n");
-    printf(" Runtime      : %.3f s\n", info[0]);
+    printf(" Runtime      : %.3f s\n", elapsed);
     printf(" Clicks       : %ld\n", total);
     printf(" Actual CPS   : %.2f\n", actual_cps);
 
@@ -104,7 +107,7 @@ void print_report(const char *platform, long total, const double *info) {
     printf(" Efficiency   : %.2f%%\n", efficiency);
 }
 
-int manage_argv(char **argv, int argc, double *delay_sec, double *duration_sec, double *target_cps) {
+int manage_argv(char **argv, int argc, m_info *info) {
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] != '-' || argv[i][1] != '-') {
             fprintf(stderr, "%s: invalid argument: '%s'\n",
@@ -130,7 +133,7 @@ int manage_argv(char **argv, int argc, double *delay_sec, double *duration_sec, 
                 return INVALID_ARG;
             }
 
-            *duration_sec = val;
+            info->duration_s = val;
         } else if (is_arg(argv[i] + 2, DELAY_FLAG)) {
             double val = get_arg_value(argv[i]);
 
@@ -148,7 +151,7 @@ int manage_argv(char **argv, int argc, double *delay_sec, double *duration_sec, 
                 return INVALID_ARG;
             }
 
-            *delay_sec = val;
+            info->delay_s = val;
         } else if (is_arg(argv[i] + 2, CPS_FLAG)) {
             double val = get_arg_value(argv[i]);
 
@@ -166,7 +169,9 @@ int manage_argv(char **argv, int argc, double *delay_sec, double *duration_sec, 
                 return INVALID_ARG;
             }
 
-            *target_cps = val;
+            info->cps = val;
+        } else if (is_arg(argv[i] + 2, BUTTON_FLAG)) {
+            // TODO: code
         } else {
             argv[i][strcspn(argv[i], "=")] = '\0';
 

@@ -9,6 +9,7 @@
 
 #define CPS_FLAG "cps"
 #define DELAY_FLAG "delay"
+#define BUTTON_FLAG "button"
 #define DURATION_FLAG "duration"
 
 #define PROJ_NAME "Cclicker"
@@ -25,6 +26,22 @@ enum errors {
     DISPLAY_ERR,
     INVALID_DELAY
 };
+
+typedef enum mouse_button {
+    LEFT_BTN = 1,
+    RIGHT_BTN,
+    SCR_BTN,
+    BRB_BTN,
+    BRF_BTN
+} m_button;
+
+typedef struct mouse_info {
+    double delay_s;
+    double duration_s;
+    double cps;
+    m_button button;
+} m_info;
+
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 
@@ -43,8 +60,8 @@ int is_running_in_wsl(void);
 double get_arg_value(const char *arg);
 void get_platform(char *buff, size_t size);
 int is_arg(const char *src, const char *arg);
-void print_report(const char *platform, long total, const double *info);
-int manage_argv(char **argv, int argc, double *delay_sec, double *duration_sec, double *target_cps);
+int manage_argv(char **argv, int argc, m_info *info);
+void print_report(long total, double elapsed, m_info info);
 
 
 #endif
