@@ -3,8 +3,11 @@
 
 #ifdef _WIN32
     #include <windows.h>
-#elif defined(__linux__) || defined(__APPLE__)
+#elif defined(__linux__)
     #include <unistd.h>
+#elif defined(__APPLE__)
+    #include <unistd.h>
+    #include <ApplicationServices/ApplicationServices.h>
 #endif
 
 #define CPS_FLAG "cps"
@@ -16,13 +19,12 @@
 
 #define MAX_DURATION (86400.0 * 365.0) // 1 year
 
-
 enum errors {
     // other functions
     INVALID_ARG_VALUE = -1,
 
     // main()
-    INVALID_ARG,
+    INVALID_ARG = 1,
     DISPLAY_ERR,
     INVALID_DELAY
 };
@@ -30,16 +32,27 @@ enum errors {
 typedef enum mouse_button {
     LEFT_BTN = 1,
     RIGHT_BTN,
-    SCR_BTN,
-    BRB_BTN,
-    BRF_BTN
+    MID_BTN,
 } m_button;
+
+typedef struct button_info {
+#ifdef _WIN32
+    DWORD down;
+    DWORD up;
+#elif __linux__
+    int code;
+#elif __APPLE__
+    CGEventType down;
+    CGEventType up;
+    CGMouseButton btn;
+#endif
+} b_info;
 
 typedef struct mouse_info {
     double delay_s;
     double duration_s;
     double cps;
-    m_button button;
+    b_info button;
 } m_info;
 
 
@@ -58,6 +71,7 @@ display get_display_server(void);
 void sleepS(double sec);
 int is_running_in_wsl(void);
 double get_arg_value(const char *arg);
+const b_info *get_button(m_button btn);
 void get_platform(char *buff, size_t size);
 int is_arg(const char *src, const char *arg);
 int manage_argv(char **argv, int argc, m_info *info);

@@ -1,6 +1,8 @@
+
 #ifdef __linux__
     #define _POSIX_C_SOURCE 200809L
     #include <time.h>
+    #include "posix_input.h"
 #endif
 
 #ifndef _CRT_SECURE_NO_WARNINGS
@@ -10,9 +12,51 @@
 #include <math.h>
 #include "utils.h"
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+
+const b_info *get_button(m_button btn) {
+    static const b_info buttons[] = {
+
+    #ifdef _WIN32
+        { .down = MOUSEEVENTF_LEFTDOWN,   .up = MOUSEEVENTF_LEFTUP   },
+        { .down = MOUSEEVENTF_RIGHTDOWN,  .up = MOUSEEVENTF_RIGHTUP  },
+        { .down = MOUSEEVENTF_MIDDLEDOWN, .up = MOUSEEVENTF_MIDDLEUP },
+    #endif
+
+    #ifdef __linux__
+        { .code = BTN_LEFT   },
+        { .code = BTN_RIGHT  },
+        { .code = BTN_MIDDLE },
+    #endif
+
+    #ifdef __APPLE__
+        {
+            .down = kCGEventLeftMouseDown,
+            .up   = kCGEventLeftMouseUp,
+            .code = kCGMouseButtonLeft 
+        },
+
+        { 
+            .down = kCGEventRightMouseDown,
+            .up   = kCGEventRightMouseUp,
+            .code = kCGMouseButtonRight 
+        },
+
+        {
+            .down = kCGEventOtherMouseDown,
+            .up   = kCGEventOtherMouseUp,
+            .code = (CGMouseButton)2 
+        },
+    #endif
+    };
+
+    if (btn < LEFT_BTN || btn > MID_BTN)
+        return NULL;
+
+    return &buttons[btn - 1];
+}
 
 int is_running_in_wsl(void) {
     if (getenv("WSL_DISTRO_NAME") || getenv("WSL_INTEROP") ||
@@ -108,6 +152,8 @@ void print_report(long total, double elapsed, m_info info) {
 }
 
 int manage_argv(char **argv, int argc, m_info *info) {
+    int btn_set = 0;
+
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] != '-' || argv[i][1] != '-') {
             fprintf(stderr, "%s: invalid argument: '%s'\n",
@@ -171,7 +217,37 @@ int manage_argv(char **argv, int argc, m_info *info) {
 
             info->cps = val;
         } else if (is_arg(argv[i] + 2, BUTTON_FLAG)) {
-            // TODO: code
+            double val = get_arg_value(argv[i]);
+
+            if (isnan(val) || val == (double)INVALID_ARG_VALUE) {
+                fprintf(stderr, "%s: invalid value for %s flag\n",
+                    PROJ_NAME, BUTTON_FLAG);
+
+                return INVALID_ARG;
+            }
+
+            if (val < LEFT_BTN || val > MID_BTN) {
+                fprintf(stderr, "%s: button value out of range. must be: >= %d and <= %d\n",
+                    PROJ_NAME, LEFT_BTN, MID_BTN);
+
+                return INVALID_ARG;
+            }
+
+            if (val != trunc(val)) {
+                fprintf(stderr, "%s: button value must be an integer\n",
+                    PROJ_NAME);
+
+                return INVALID_ARG;
+            }
+
+            const b_info *b = get_button((m_button)val);
+
+            if (!b)
+                return INVALID_ARG;
+
+            info->button = *b;
+
+            btn_set = 1;
         } else {
             argv[i][strcspn(argv[i], "=")] = '\0';
 
@@ -179,6 +255,11 @@ int manage_argv(char **argv, int argc, m_info *info) {
                 PROJ_NAME, argv[i]);
 
             return INVALID_ARG;
+        }
+
+        if (!btn_set) {
+            const b_info *b = get_button(LEFT_BTN);
+            info->button = *b;
         }
     }
 
@@ -231,6 +312,7 @@ double get_arg_value(const char *arg) {
     errno = 0;
 
     double result = strtod(val + 1, &endptr);
+
 
     if (endptr == val + 1 || *endptr != '\0')
         return (double)INVALID_ARG_VALUE;

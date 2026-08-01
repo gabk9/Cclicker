@@ -19,7 +19,7 @@
 | -------- | :------------- |
 | Windows  | ✅ Supported   |
 | Linux    | ✅ Supported   |
-| macOS    | ✅ Supported   |
+| macOS    | ⚠️ Untested    |
 
 ---
 

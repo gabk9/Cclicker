@@ -18,8 +18,8 @@
     #include <time.h>
 #endif
 
-#ifdef __APPLE__
-    #error "this project currently does not support MacOS"
+#if defined(__APPLE__) && !defined(CCLICKER_HAS_APPLE_HEADERS)
+    #warning "this project currently does not support macOS in this build"
 #endif
 
 int main(int argc, char **argv) {
@@ -38,7 +38,6 @@ int main(int argc, char **argv) {
         .delay_s = NAN,
         .duration_s = NAN,
         .cps = NAN,
-        .button = LEFT_BTN,
     };
 
     int argv_error = manage_argv(argv, argc, &info);
@@ -89,7 +88,7 @@ int main(int argc, char **argv) {
 #endif
 
 #ifdef __linux__
-    int fd = create_virtual_mouse(PROJ_NAME"_virtual_mouse");
+    int fd = create_virtual_mouse(PROJ_NAME"_virtual_mouse", info.button.code);
 #elif defined(__APPLE__)
     CGEventRef current = CGEventCreate(NULL);
     CGPoint pos = CGEventGetLocation(current);
@@ -115,20 +114,20 @@ int main(int argc, char **argv) {
 
     #ifdef _WIN32
         INPUT input[] = {
-            {.type = INPUT_MOUSE, .mi.dwFlags = MOUSEEVENTF_LEFTDOWN},
-            {.type = INPUT_MOUSE, .mi.dwFlags = MOUSEEVENTF_LEFTUP}
+            {.type = INPUT_MOUSE, .mi.dwFlags = info.button.down},
+            {.type = INPUT_MOUSE, .mi.dwFlags = info.button.up}
         };
 
         SendInput(ARRAYSIZE(input), input, sizeof(*input));
     #elif __linux__
-        emit(fd, EV_KEY, BTN_LEFT, 1);
+        emit(fd, EV_KEY, info.button.code, 1);
         emit(fd, EV_SYN, SYN_REPORT, 0);
 
-        emit(fd, EV_KEY, BTN_LEFT, 0);
+        emit(fd, EV_KEY, info.button.code, 0);
         emit(fd, EV_SYN, SYN_REPORT, 0);    
     #elif __APPLE__
-        emit_mouse(kCGEventLeftMouseDown, pos, kCGMouseButtonLeft);
-        emit_mouse(kCGEventLeftMouseUp, pos, kCGMouseButtonLeft);
+        emit_mouse(info.button.down, pos, info.button.btn);
+        emit_mouse(info.button.up, pos, info.button.btn);
     #endif
 
         total++;

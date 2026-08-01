@@ -2,7 +2,6 @@
 
 #include <string.h>
 #include "posix_input.h"
-#include <linux/uinput.h>
 
 void emit(int fd, int type, int code, int value) {
     struct input_event event = {0};
@@ -14,13 +13,13 @@ void emit(int fd, int type, int code, int value) {
     write(fd, &event, sizeof(event));
 }
 
-int create_virtual_mouse(const char *name) {
+int create_virtual_mouse(const char *name, int code) {
     int fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
 
     ioctl(fd, UI_SET_EVBIT, EV_KEY);
     ioctl(fd, UI_SET_EVBIT, EV_SYN);
 
-    ioctl(fd, UI_SET_KEYBIT, BTN_LEFT);
+    ioctl(fd, UI_SET_KEYBIT, code);
 
     struct uinput_setup usetup = {0};
 
@@ -40,7 +39,7 @@ void destroy_virtual_mouse(int fd) {
     close(fd);
 }
 
-#elif __APPLE__
+#elif defined(__APPLE__)
 
 void emit_mouse(CGEventType type, CGPoint mouse_pos, CGMouseButton button) {
     CGEventRef event = CGEventCreateMouseEvent(NULL, type, mouse_pos, button);
