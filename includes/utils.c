@@ -106,6 +106,22 @@ void get_platform(char *buff, size_t size) {
 
 void print_report(long total, double elapsed, m_info info) {
 
+    char *button_str;
+
+    switch (info.button_rep) {
+        case LEFT_BTN:
+            button_str = "left button";
+            break;
+        case RIGHT_BTN:
+            button_str = "right button";
+            break;
+        case MID_BTN: 
+            button_str = "middle button";
+            break;
+        default:
+            button_str = "unknown";
+    }
+
     char platform[16];
     get_platform(platform, sizeof(platform));
 
@@ -129,8 +145,9 @@ void print_report(long total, double elapsed, m_info info) {
 
     printf("\nConfiguration\n");
     printf("-------------\n");
-    printf(" Duration     : %.3f s\n", info.duration_s);
-    printf(" Delay        : %.6f s\n", info.delay_s);
+    printf(" Button       : %d (%s)\n", info.button_rep, button_str);
+    printf(" Duration     : %.3f s\n",  info.duration_s);
+    printf(" Delay        : %.6f s\n",  info.delay_s);
 
     if (!isnan(info.cps))
         printf(" Target CPS   : %.2f\n", info.cps);
@@ -245,7 +262,8 @@ int manage_argv(char **argv, int argc, m_info *info) {
             if (!b)
                 return INVALID_ARG;
 
-            info->button = *b;
+            info->button_rep = (m_button)val;
+            info->button_values = *b;
 
             btn_set = 1;
         } else {
@@ -259,7 +277,8 @@ int manage_argv(char **argv, int argc, m_info *info) {
 
         if (!btn_set) {
             const b_info *b = get_button(LEFT_BTN);
-            info->button = *b;
+            info->button_rep = LEFT_BTN;
+            info->button_values = *b;
         }
     }
 

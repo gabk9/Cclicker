@@ -109,18 +109,26 @@ cmake --build .
 
 ### Options
 
-| Option | Description |
-| -------------- | ------------------------------- |
-| `--duration=x` | Total execution time in seconds |
-| `--delay=x` | Delay between clicks in seconds |
-| `--cps=x` | Target clicks per second |
+| Option         | Description                                 |
+| -------------- | ------------------------------------------- |
+| `--duration=x` | Total execution time in seconds             |
+| `--button=x`   | Which mouse button you want to use (1 to 3) |
+| `--delay=x`    | Delay between clicks in seconds             |
+| `--cps=x`      | Target clicks per second                    |
+
+> **Button values:**
+> - `1` = Left button
+> - `2` = Middle button
+> - `3` = Right button
 
 `--delay` and `--cps` are mutually exclusive.
+
 ### Examples
 
 ```bash
 ./Cclicker --duration=10 --delay=0.1
 ./Cclicker --duration=10 --cps=100
+./Cclicker --button=2 --duration=5 --cps=10
 ```
 
 ---
@@ -158,7 +166,7 @@ On Linux, Cclicker uses the kernel `uinput` interface to create a virtual mouse 
 Configure your system permissions to allow access to `/dev/uinput`.
 
 If permission is denied, add your user to the appropriate group:
- 
+
 ```
 sudo usermod -aG input $USER
 ```

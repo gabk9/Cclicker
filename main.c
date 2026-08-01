@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
 #endif
 
 #ifdef __linux__
-    int fd = create_virtual_mouse(PROJ_NAME"_virtual_mouse", info.button.code);
+    int fd = create_virtual_mouse(PROJ_NAME"_virtual_mouse", info.button_values.code);
 #elif defined(__APPLE__)
     CGEventRef current = CGEventCreate(NULL);
     CGPoint pos = CGEventGetLocation(current);
@@ -114,20 +114,20 @@ int main(int argc, char **argv) {
 
     #ifdef _WIN32
         INPUT input[] = {
-            {.type = INPUT_MOUSE, .mi.dwFlags = info.button.down},
-            {.type = INPUT_MOUSE, .mi.dwFlags = info.button.up}
+            {.type = INPUT_MOUSE, .mi.dwFlags = info.button_values.down},
+            {.type = INPUT_MOUSE, .mi.dwFlags = info.button_values.up}
         };
 
         SendInput(ARRAYSIZE(input), input, sizeof(*input));
     #elif __linux__
-        emit(fd, EV_KEY, info.button.code, 1);
+        emit(fd, EV_KEY, info.button_values.code, 1);
         emit(fd, EV_SYN, SYN_REPORT, 0);
 
-        emit(fd, EV_KEY, info.button.code, 0);
+        emit(fd, EV_KEY, info.button_values.code, 0);
         emit(fd, EV_SYN, SYN_REPORT, 0);    
     #elif __APPLE__
-        emit_mouse(info.button.down, pos, info.button.btn);
-        emit_mouse(info.button.up, pos, info.button.btn);
+        emit_mouse(info.button_values.down, pos, info.button_values.btn);
+        emit_mouse(info.button_values.up, pos, info.button_values.btn);
     #endif
 
         total++;

@@ -52,7 +52,8 @@ typedef struct mouse_info {
     double delay_s;
     double duration_s;
     double cps;
-    b_info button;
+    b_info button_values;
+    m_button button_rep;
 } m_info;
 
 
