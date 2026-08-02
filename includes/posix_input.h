@@ -1,6 +1,7 @@
 #if !defined(POSIX_INPUT_H) && !defined(_WIN32)
 #define POSIX_INPUT_H
 
+
 #ifdef __linux__
     #include <fcntl.h>
     #include <unistd.h>
@@ -14,5 +15,6 @@
 
     void emit_mouse(CGEventType type, CGPoint mouse_pos, CGMouseButton button);
 #endif
+
 
 #endif
