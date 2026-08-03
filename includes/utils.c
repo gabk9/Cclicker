@@ -140,7 +140,7 @@ void print_report(long total, double elapsed, m_info info) {
 
     printf("\n");
     printf("=========================================\n");
-    printf(" %s (%s)\n", PROJ_NAME, platform);
+    printf(" Cclicker (%s)\n", platform);
     printf("=========================================\n");
 
     printf("\nConfiguration\n");
@@ -173,8 +173,7 @@ int manage_argv(char **argv, int argc, m_info *info) {
 
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] != '-' || argv[i][1] != '-') {
-            fprintf(stderr, "%s: invalid argument: '%s'\n",
-                PROJ_NAME, argv[i]);
+            fprintf(stderr, "Cclicker invalid argument: '%s'\n", argv[i]);
 
             return INVALID_ARG;
         }
@@ -183,15 +182,13 @@ int manage_argv(char **argv, int argc, m_info *info) {
             double val = get_arg_value(argv[i]);
 
             if (isnan(val) || val == (double)INVALID_ARG_VALUE) {
-                fprintf(stderr, "%s: invalid value for '%s' flag\n",
-                    PROJ_NAME, DURATION_FLAG);
+                fprintf(stderr, "Cclicker invalid value for '%s' flag\n", DURATION_FLAG);
 
                 return INVALID_ARG;
             }
 
             if (val <= 0.0 || val > MAX_DURATION) {
-                fprintf(stderr, "%s: invalid duration amount\n",
-                    PROJ_NAME);
+                fprintf(stderr, "Cclicker invalid duration amount\n");
 
                 return INVALID_ARG;
             }
@@ -201,15 +198,13 @@ int manage_argv(char **argv, int argc, m_info *info) {
             double val = get_arg_value(argv[i]);
 
             if (isnan(val) || val == (double)INVALID_ARG_VALUE) {
-                fprintf(stderr, "%s: invalid value for %s flag\n",
-                    PROJ_NAME, DELAY_FLAG);
+                fprintf(stderr, "Cclicker invalid value for %s flag\n", DELAY_FLAG);
 
                 return INVALID_ARG;
             }
 
             if (val <= 0.0) {
-                fprintf(stderr, "%s: invalid delay amount\n",
-                    PROJ_NAME);
+                fprintf(stderr, "Cclicker invalid delay amount\n");
 
                 return INVALID_ARG;
             }
@@ -219,15 +214,13 @@ int manage_argv(char **argv, int argc, m_info *info) {
             double val = get_arg_value(argv[i]);
 
             if (isnan(val) || val == (double)INVALID_ARG_VALUE) {
-                fprintf(stderr, "%s: invalid value for %s flag\n",
-                    PROJ_NAME, CPS_FLAG);
+                fprintf(stderr, "Cclicker invalid value for %s flag\n", CPS_FLAG);
 
                 return INVALID_ARG;
             }
 
             if (val <= 0.0) {
-                fprintf(stderr, "%s: invalid cps amount\n",
-                    PROJ_NAME);
+                fprintf(stderr, "Cclicker invalid cps amount\n");
 
                 return INVALID_ARG;
             }
@@ -237,22 +230,19 @@ int manage_argv(char **argv, int argc, m_info *info) {
             double val = get_arg_value(argv[i]);
 
             if (isnan(val) || val == (double)INVALID_ARG_VALUE) {
-                fprintf(stderr, "%s: invalid value for %s flag\n",
-                    PROJ_NAME, BUTTON_FLAG);
+                fprintf(stderr, "Cclicker invalid value for %s flag\n", BUTTON_FLAG);
 
                 return INVALID_ARG;
             }
 
             if (val < LEFT_BTN || val > MID_BTN) {
-                fprintf(stderr, "%s: button value out of range. must be: >= %d and <= %d\n",
-                    PROJ_NAME, LEFT_BTN, MID_BTN);
+                fprintf(stderr, "Cclicker button value out of range. must be: >= %d and <= %d\n", LEFT_BTN, MID_BTN);
 
                 return INVALID_ARG;
             }
 
             if (val != trunc(val)) {
-                fprintf(stderr, "%s: button value must be an integer\n",
-                    PROJ_NAME);
+                fprintf(stderr, "Cclicker button value must be an integer\n");
 
                 return INVALID_ARG;
             }
@@ -269,8 +259,7 @@ int manage_argv(char **argv, int argc, m_info *info) {
         } else {
             argv[i][strcspn(argv[i], "=")] = '\0';
 
-            fprintf(stderr, "%s: unknown flag: '%s'\n",
-                PROJ_NAME, argv[i]);
+            fprintf(stderr, "Cclicker unknown flag: '%s'\n", argv[i]);
 
             return INVALID_ARG;
         }

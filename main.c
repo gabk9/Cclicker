@@ -25,12 +25,12 @@
 int main(int argc, char **argv) {
 
     if (!isatty(STDIN_FILENO)) {
-        puts(PROJ_NAME": interactive terminal input is not supported");
+        fprintf(stderr, "Cclicker: interactive terminal input is not supported");
         return INVALID_ARG;
     }
 
     if (argc <= 1) {
-        fprintf(stderr, "%s: missing parameters\n", PROJ_NAME);
+        fprintf(stderr, "Cclicker: missing parameters");
         return INVALID_ARG;
     }
 
@@ -46,24 +46,21 @@ int main(int argc, char **argv) {
         return argv_error;
 
     if (isnan(info.duration_s)) {
-        fprintf(stderr, "%s: %s flag out of use\n",
-            PROJ_NAME, DURATION_FLAG);
+        fprintf(stderr, "Cclicker: %s flag out of use\n", DURATION_FLAG);
 
         return INVALID_ARG;
     }
 
     if (!isnan(info.delay_s) && !isnan(info.cps)) {
-        fprintf(stderr,
-            "%s: %s and %s flags cannot be used at the same time\n",
-            PROJ_NAME, DELAY_FLAG, CPS_FLAG);
+        fprintf(stderr, "Cclicker: %s and %s flags cannot be used at the same time\n",
+            DELAY_FLAG, CPS_FLAG);
 
         return INVALID_ARG;
     }
 
     if (isnan(info.delay_s) && isnan(info.cps)) {
-        fprintf(stderr,
-            "%s: either %s or %s must be specified\n",
-            PROJ_NAME, DELAY_FLAG, CPS_FLAG);
+        fprintf(stderr, "Cclicker: either %s or %s must be specified\n",
+            DELAY_FLAG, CPS_FLAG);
 
         return INVALID_ARG;
     }
@@ -72,8 +69,7 @@ int main(int argc, char **argv) {
         info.delay_s = 1.0 / info.cps;
 
     if (info.delay_s > info.duration_s) {
-        fprintf(stderr, "%s: the delay must be less than the duration\n",
-            PROJ_NAME);
+        fprintf(stderr, "Cclicker: the delay must be less than the duration\n");
 
         return INVALID_DELAY;
     }
@@ -88,7 +84,7 @@ int main(int argc, char **argv) {
 #endif
 
 #ifdef __linux__
-    int fd = create_virtual_mouse(PROJ_NAME"_virtual_mouse", info.button_values.code);
+    int fd = create_virtual_mouse("Cclicker_virtual_mouse", info.button_values.code);
 #elif defined(__APPLE__)
     CGEventRef current = CGEventCreate(NULL);
     CGPoint pos = CGEventGetLocation(current);

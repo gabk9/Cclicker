@@ -15,8 +15,6 @@
 #define BUTTON_FLAG "button"
 #define DURATION_FLAG "duration"
 
-#define PROJ_NAME "Cclicker"
-
 #define MAX_DURATION (86400.0 * 365.0) // 1 year
 
 enum errors {
