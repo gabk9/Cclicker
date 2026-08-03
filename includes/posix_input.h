@@ -8,8 +8,8 @@
     #include <linux/uinput.h>
 
     void destroy_virtual_mouse(int fd);
-    int create_virtual_mouse(const char *name, int code);
     void emit(int fd, int type, int code, int value);
+    int create_virtual_mouse(const char *name, int code);
 #elif defined(__APPLE__)
     #include <ApplicationServices/ApplicationServices.h>
 
