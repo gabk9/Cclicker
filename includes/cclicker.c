@@ -4,11 +4,11 @@
 #include "utils.h"
 #include <math.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
 #include "cclicker.h"
 
 #ifdef _WIN32
+    #include <stdlib.h>
     #include <windows.h>
 #elif defined(__linux__) || defined(__APPLE__)
     #include <time.h>
@@ -25,61 +25,32 @@ struct Cclicker {
 };
 
 Cclicker *cclicker_create(void) {
-    Cclicker *cc = malloc(sizeof(Cclicker));
+    static Cclicker cc = {
+        .duration_s = NAN,
+        .delay_s = NAN,
+        .btn = LEFT_BTN
+    };
 
-    if (!cc)
-        return NULL;
-
-    cc->duration_s = NAN;
-    cc->delay_s = NAN;
-    cc->btn = LEFT_BTN;
-
-    return cc;
+    return &cc;
 }
 
 void cclicker_set_cps(Cclicker *cc, double cps) {
-    if (!cc) {
-        fprintf(stderr, "Cclicker: the clicker was not created\n");
-        return;
-    }
-
     cc->delay_s = 1.0 / cps;
 }
 
 void cclicker_set_delay_s(Cclicker *cc, double delay_s) {
-    if (!cc) {
-        fprintf(stderr, "Cclicker: the clicker was not created\n");
-        return;
-    }
-
     cc->delay_s = delay_s;
 }
 
 void cclicker_set_duration_s(Cclicker *cc, double duration_s) {
-    if (!cc) {
-        fprintf(stderr, "Cclicker: the clicker was not created\n");
-        return;
-    }
-
     cc->duration_s = duration_s;
 }
 
 void cclicker_set_button(Cclicker *cc, m_button button) {
-    if (!cc) {
-        fprintf(stderr, "Cclicker: the clicker was not created\n");
-        return;
-    }
-
     cc->btn = button;
 }
 
 void cclicker_start(Cclicker *cc) {
-
-    if (!cc) {
-        fprintf(stderr, "Cclicker: the clicker was not created\n");
-        return;
-    }
-
     if (isnan(cc->delay_s)) {
         fprintf(stderr, "Cclicker: the delay/cps was not set\n");
         return;
@@ -150,13 +121,4 @@ void cclicker_start(Cclicker *cc) {
 #ifdef __linux__
     destroy_virtual_mouse(fd);
 #endif
-}
-
-void cclicker_destroy(Cclicker *cc) {
-    if (!cc) {
-        fprintf(stderr, "Cclicker: the clicker was not created\n");
-        return;
-    }
-
-    free(cc);
 }

@@ -80,8 +80,6 @@ int main(int argc, char **argv) {
 
     cclicker_start(cc);
 
-    cclicker_destroy(cc);
-
     print_report(total_clicks, elapsed, info);
 
     return 0;
