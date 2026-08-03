@@ -8,7 +8,9 @@
 #include <stdbool.h>
 #include "cclicker.h"
 
-#if defined(__linux__) || defined(__APPLE__)
+#ifdef _WIN32
+    #include <windows.h>
+#elif defined(__linux__) || defined(__APPLE__)
     #include <time.h>
     #include "posix_input.h"
 #endif
