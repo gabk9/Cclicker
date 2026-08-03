@@ -8,6 +8,7 @@ endif()
 set(SOURCES
     main.c
     includes/utils.c
+    includes/cclicker.c
 )
 
 if(NOT WIN32)
