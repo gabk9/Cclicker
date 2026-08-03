@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 const b_info *get_button(m_button btn) {
     static const b_info buttons[] = {
@@ -169,7 +170,7 @@ void print_report(long total, double elapsed, m_info info) {
 }
 
 int manage_argv(char **argv, int argc, m_info *info) {
-    int btn_set = 0;
+    bool btn_set = false;
 
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] != '-' || argv[i][1] != '-') {
@@ -255,7 +256,7 @@ int manage_argv(char **argv, int argc, m_info *info) {
             info->button_rep = (m_button)val;
             info->button_values = *b;
 
-            btn_set = 1;
+            btn_set = true;
         } else {
             argv[i][strcspn(argv[i], "=")] = '\0';
 

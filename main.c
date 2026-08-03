@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdio.h>
 #include "includes/utils.h"
-#include "includes/posix_input.h"
+#include "includes/cclicker.h"
 
 #if !defined(__APPLE__) && !defined(__linux__) && !defined(_WIN32)
     #error "Error: platform not supported or not recognized"
@@ -14,8 +14,6 @@
 
     #define isatty _isatty
     #define STDIN_FILENO 0
-#elif defined(__linux__) || defined(__APPLE__)
-    #include <time.h>
 #endif
 
 #if defined(__APPLE__) && !defined(CCLICKER_HAS_APPLE_HEADERS)
@@ -74,68 +72,17 @@ int main(int argc, char **argv) {
         return INVALID_DELAY;
     }
 
-#ifdef _WIN32
-    LARGE_INTEGER qpc_freq, qpc_start, qpc_now;
-    QueryPerformanceFrequency(&qpc_freq);
-    QueryPerformanceCounter(&qpc_start);
-#elif defined(__linux__) || defined(__APPLE__)
-    struct timespec start, now;
-    clock_gettime(CLOCK_MONOTONIC, &start);
-#endif
+    Cclicker *cc = cclicker_create();
 
-#ifdef __linux__
-    int fd = create_virtual_mouse("Cclicker_virtual_mouse", info.button_values.code);
-#elif defined(__APPLE__)
-    CGEventRef current = CGEventCreate(NULL);
-    CGPoint pos = CGEventGetLocation(current);
-    CFRelease(current);
-#endif
+    cclicker_set_duration_s(cc, info.duration_s);
+    cclicker_set_delay_s(cc, info.delay_s);
+    cclicker_set_button(cc, info.button_rep);
 
-    double elapsed = 0.0;
-    long total = 0;
+    cclicker_start(cc);
 
-    for (;;) {
-    #ifdef _WIN32
-        QueryPerformanceCounter(&qpc_now);
-        elapsed = (qpc_now.QuadPart - qpc_start.QuadPart) / (double)qpc_freq.QuadPart;
-    #elif defined(__linux__) || defined(__APPLE__)
-        clock_gettime(CLOCK_MONOTONIC, &now);
-        elapsed = (now.tv_sec - start.tv_sec) + (now.tv_nsec - start.tv_nsec) / 1e9;
-    #endif
+    cclicker_destroy(cc);
 
-        double remaining = info.duration_s - elapsed;
-
-        if (remaining <= 0.0)
-            break;
-
-    #ifdef _WIN32
-        INPUT input[] = {
-            {.type = INPUT_MOUSE, .mi.dwFlags = info.button_values.down},
-            {.type = INPUT_MOUSE, .mi.dwFlags = info.button_values.up}
-        };
-
-        SendInput(ARRAYSIZE(input), input, sizeof(*input));
-    #elif __linux__
-        emit(fd, EV_KEY, info.button_values.code, 1);
-        emit(fd, EV_SYN, SYN_REPORT, 0);
-
-        emit(fd, EV_KEY, info.button_values.code, 0);
-        emit(fd, EV_SYN, SYN_REPORT, 0);    
-    #elif __APPLE__
-        emit_mouse(info.button_values.down, pos, info.button_values.btn);
-        emit_mouse(info.button_values.up, pos, info.button_values.btn);
-    #endif
-
-        total++;
-
-        sleepS(remaining < info.delay_s ? remaining : info.delay_s);
-    }
-
-#ifdef __linux__
-    destroy_virtual_mouse(fd);
-#endif
-
-    print_report(total, elapsed, info);
+    print_report(total_clicks, elapsed, info);
 
     return 0;
 }
