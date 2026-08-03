@@ -192,7 +192,7 @@ The engine is capable of generating hundreds or thousands of clicks per second d
 
 ## Future Plans
 
-- [ ] Multiple mouse buttons
+- [X] Multiple mouse buttons
 - [ ] macOS support
 
 ---
