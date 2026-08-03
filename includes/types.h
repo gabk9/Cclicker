@@ -1,6 +1,12 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#ifdef _WIN32
+    #include <windows.h>
+#elif __APPLE__
+    #include <ApplicationServices/ApplicationServices.h>
+#endif
+
 typedef enum mouse_button {
     LEFT_BTN = 1,
     RIGHT_BTN,
