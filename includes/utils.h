@@ -12,9 +12,12 @@
 
 #include "types.h"
 
+#define VERSION_STR "1.0.0"
+
 #define CPS_FLAG "cps"
 #define DELAY_FLAG "delay"
 #define BUTTON_FLAG "button"
+#define VERSION_FLAG "version"
 #define DURATION_FLAG "duration"
 
 #define MAX_DURATION (86400.0 * 365.0) // 1 year

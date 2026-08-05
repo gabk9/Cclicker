@@ -257,6 +257,9 @@ int manage_argv(char **argv, int argc, m_info *info) {
             info->button_values = *b;
 
             btn_set = true;
+        } else if (is_arg(argv[i] + 2, VERSION_FLAG)) {
+            puts("Cclicker - "VERSION_STR);
+            exit(EXIT_SUCCESS);
         } else {
             argv[i][strcspn(argv[i], "=")] = '\0';
 
